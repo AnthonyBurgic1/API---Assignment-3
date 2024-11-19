@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather API Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #weather {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            display: none;
+        }
+        #loading {
+            color: blue;
+        }
+        #error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Weather API Example</h1>
+    <p>Enter a city name to get the weather:</p>
+    <input type="text" id="city" placeholder="Enter city" />
+    <button onclick="getWeather()">Get Weather</button>
+
+    <p id="loading" style="display: none;">Loading...</p>
+    <div id="weather"></div>
+    <p id="error"></p>
+
+    <script>
+        const apiKey = 'https://api.openweathermap.org/data/3.0/onecall?lat={lat}&lon={lon}&exclude={part}&appid={API key}'; 
+
+// Function to fetch weather data \\ 
+    function getWeather() {
+    const city = document.getElementById('city').value.trim();
+        if (!city) {
+    document.getElementById('error').innerText = 'Please enter a city name';
+        return;
+    }
+
+// Show loading message and hide previous content \\ 
+    document.getElementById('loading').style.display = 'inline';
+    document.getElementById('error').innerText = '';
+    document.getElementById('weather').style.display = 'none';
+
+// URL to fetch data from OpenWeatherMap API \\ 
+    const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+// Fetch weather data
+    fetch(url)
+    .then(response => {
+        if (!response.ok) {
+        throw new Error('City not found or invalid request');
+    }
+        return response.json();
+    })
+        .then(data => {
+// Display the weather data on the page \\ 
+    const weatherInfo = `
+    <h2>Weather in ${data.name}, ${data.sys.country}</h2>
+    <p>Temperature: ${data.main.temp}°C</p>
+    <p>Weather: ${data.weather[0].description}</p>
+    <p>Humidity: ${data.main.humidity}%</p>
+    <p>Wind Speed: ${data.wind.speed} m/s</p>
+`;
+    document.getElementById('weather').innerHTML = weatherInfo;
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('weather').style.display = 'block';
+})
+    .catch(error => {
+
+// Handle errors (like city not found)
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').innerText = error.message;
+
+});
+}
+
+// Allow "Enter" key to trigger the weather fetch when the user is typing \\ 
+    
+    document.getElementById('city').addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+        getWeather();
+    }
+});
+    
+</script>
+
+</body>
+</html>
